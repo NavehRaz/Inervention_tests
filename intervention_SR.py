@@ -287,7 +287,7 @@ def getInterventionSR(
     epsilon_var=0,
     xc_var=0.2,
     kappa_var=0,
-    hetro=True,
+    hetro=False,
     bandwidth=3,
     step_size=None,
     method='brownian_bridge',
@@ -481,12 +481,6 @@ def death_times_accelerator(s,dt,t,eta0,eta_var,beta0,beta_var,kappa0,kappa_var,
         while j in range(s-1) and x<xc:
             current_time = t[j]
             
-            # Save trajectory if requested
-            if save_trajectory:
-                for k in range(len(traj_time_points)):
-                    if abs(current_time - traj_time_points[k]) < dt/2:
-                        trajectories[l, k] = x
-            
             # Apply interventions based on type
             if intervention_type_flag == 1 and abs(current_time - intervention_time) < dt/2:
                 # Transient intervention
@@ -496,6 +490,12 @@ def death_times_accelerator(s,dt,t,eta0,eta_var,beta0,beta_var,kappa0,kappa_var,
                 # Damage removal intervention
                 x = x * (1 - intervention_effect)
                 x = np.maximum(x, 0)
+            
+            # Save trajectory if requested (after interventions, before simulation steps)
+            if save_trajectory and x < xc:  # Only save if still alive
+                for k in range(len(traj_time_points)):
+                    if abs(current_time - traj_time_points[k]) < dt/2:
+                        trajectories[l, k] = x
             
             for i in range(time_step_multiplier):
                 # Apply parameter modifications during intervention
@@ -586,12 +586,6 @@ def death_times_accelerator2(s,dt,t,eta,eta_var,beta,beta_var,kappa,kappa_var,ep
             while j in range(s - 1) and x < xc and not died:
                 current_time = t[j]
                 
-                # Save trajectory if requested
-                if save_trajectory:
-                    for k in range(len(traj_time_points)):
-                        if abs(current_time - traj_time_points[k]) < dt/2:
-                            trajectories[l, k] = x
-                
                 # Apply interventions based on type
                 if intervention_type_flag == 1 and abs(current_time - intervention_time) < dt/2:
                     # Transient intervention
@@ -601,6 +595,12 @@ def death_times_accelerator2(s,dt,t,eta,eta_var,beta,beta_var,kappa,kappa_var,ep
                     # Damage removal intervention
                     x = x * (1 - intervention_effect)
                     x = np.maximum(x, 0)
+                
+                # Save trajectory if requested (after interventions, before simulation steps)
+                if save_trajectory and x < xc:  # Only save if still alive
+                    for k in range(len(traj_time_points)):
+                        if abs(current_time - traj_time_points[k]) < dt/2:
+                            trajectories[l, k] = x
                 
                 for i in range(time_step_multiplier):
                     # Apply parameter modifications during intervention
@@ -695,12 +695,6 @@ def death_times_euler_brownian_bridge(s, dt, t, eta0, eta_var, beta0, beta_var, 
         while j < s - 1 and not crossed:
             current_time = t[j]
             
-            # Save trajectory if requested
-            if save_trajectory:
-                for k in range(len(traj_time_points)):
-                    if abs(current_time - traj_time_points[k]) < dt/2:
-                        trajectories[person, k] = x
-            
             # Apply interventions based on type
             if intervention_type_flag == 1 and abs(current_time - intervention_time) < dt/2:
                 # Transient intervention
@@ -710,6 +704,12 @@ def death_times_euler_brownian_bridge(s, dt, t, eta0, eta_var, beta0, beta_var, 
                 # Damage removal intervention
                 x = x * (1 - intervention_effect)
                 x = max(x, 0.0)
+            
+            # Save trajectory if requested (after interventions, before simulation steps)
+            if save_trajectory and x < xc:  # Only save if still alive
+                for k in range(len(traj_time_points)):
+                    if abs(current_time - traj_time_points[k]) < dt/2:
+                        trajectories[person, k] = x
             
             for _ in range(time_step_multiplier):
                 # Apply parameter modifications during intervention
