@@ -6,6 +6,8 @@ from SRtools import deathTimesDataSet as dtds
 import os
 from SRtools import sr_mcmc as srmc
 from SRtools import SRmodellib as sr
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 jit_nopython = True
 eta_min = 2e-5  # Global variable for Saturating_eta intervention
@@ -158,10 +160,100 @@ class intervention_SR(srh.SR_Hetro):
             death_times, events, trajectories = result
             self.trajectories = trajectories
             self.traj_time_points = traj_time_points
-            return np.array(death_times), np.array(events)
+            self.death_times = np.array(death_times)
+            self.events = np.array(events)
+            return self.death_times, self.events
         else:
             death_times, events = result
-            return np.array(death_times), np.array(events)
+            self.death_times = np.array(death_times)
+            self.events = np.array(events)
+            return self.death_times, self.events
+    
+    def plot_trajectories(self, n_trajectories=10, mark_death=True, random_selection=True, 
+                         colormap='viridis', ax=None, alpha=0.7, linewidth=1.0):
+        """
+        Plot damage trajectories from the simulation.
+        
+        Parameters:
+            n_trajectories (int): Number of trajectories to plot (default: 10)
+            mark_death (bool): Whether to mark death times with markers (default: True)
+            random_selection (bool): Whether to select trajectories randomly or first n (default: True)
+            colormap (str): Matplotlib colormap name for trajectory colors (default: 'viridis')
+            ax (matplotlib.axes.Axes): Axes object to plot on. If None, creates new figure (default: None)
+            alpha (float): Transparency of trajectory lines (default: 0.7)
+            linewidth (float): Width of trajectory lines (default: 1.0)
+        
+        Returns:
+            matplotlib.axes.Axes: The axes object with the plot
+            
+        Raises:
+            ValueError: If trajectories haven't been saved or if n_trajectories is invalid
+        """
+        if not hasattr(self, 'trajectories') or self.trajectories is None:
+            raise ValueError("No trajectories available. Set save_trajectory=True when creating the simulation.")
+        
+        if not hasattr(self, 'traj_time_points') or self.traj_time_points is None:
+            raise ValueError("No trajectory time points available.")
+        
+        n_people = self.trajectories.shape[0]
+        if n_trajectories > n_people:
+            n_trajectories = n_people
+            print(f"Warning: Requested {n_trajectories} trajectories but only {n_people} available. Plotting all {n_people}.")
+        
+        if n_trajectories <= 0:
+            raise ValueError("n_trajectories must be positive.")
+        
+        # Create figure and axes if not provided
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Select trajectories to plot
+        if random_selection:
+            selected_indices = np.random.choice(n_people, size=n_trajectories, replace=False)
+        else:
+            selected_indices = np.arange(n_trajectories)
+        
+        # Get colormap
+        cmap = cm.get_cmap(colormap)
+        colors = cmap(np.linspace(0, 1, n_trajectories))
+        
+        # Plot trajectories
+        for i, idx in enumerate(selected_indices):
+            trajectory = self.trajectories[idx, :]
+            ax.plot(self.traj_time_points, trajectory, color=colors[i], 
+                   alpha=alpha, linewidth=linewidth, label=f'Individual {idx}' if n_trajectories <= 10 else None)
+            
+            # Mark death time if requested
+            if mark_death and hasattr(self, 'death_times') and hasattr(self, 'events'):
+                # Find the death time for this individual
+                if idx < len(self.events) and self.events[idx] == 1:  # Death event occurred
+                    death_time = self.death_times[idx]
+                    # Find the closest trajectory point to death time
+                    closest_idx = np.argmin(np.abs(self.traj_time_points - death_time))
+                    death_damage = trajectory[closest_idx]
+                    ax.scatter(death_time, death_damage, color=colors[i], s=50, 
+                             marker='x', alpha=1.0, zorder=5)
+        
+        # Customize plot appearance
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Damage')
+        ax.set_title(f'Damage Trajectories (n={n_trajectories})')
+        ax.grid(True, alpha=0.3)
+        
+        # Add legend if not too many trajectories
+        if n_trajectories <= 10:
+            ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        
+        # Add death markers to legend if applicable
+        if mark_death:
+            ax.scatter([], [], color='black', marker='x', s=50, alpha=1.0, label='Death time')
+            if n_trajectories <= 10:
+                ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        
+        plt.tight_layout()
+        return ax
     
 
 def getInterventionSR(
@@ -222,6 +314,11 @@ def getInterventionSR(
         traj_points (int or array-like): Number of trajectory points to save or specific time points.
             - int: Number of equally spaced points between 0 and t_end (default: 500)
             - array-like: Specific time points to save (e.g., [1, 10, 12.5])
+    
+    Returns:
+        intervention_SR: Simulation object with methods:
+            - calc_death_times(): Run simulation and return death times and events
+            - plot_trajectories(): Plot damage trajectories (requires save_trajectory=True)
     """
     if npeople is not None:
         n = npeople

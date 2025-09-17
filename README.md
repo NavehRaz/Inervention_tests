@@ -18,10 +18,16 @@ This repository contains tools for simulating and analyzing different types of i
 - **Alpha**: Adds -alpha*x term to the equation during intervention
 - **Saturating_eta**: Modifies eta by intervention_effect*(eta-eta_min) with time unit support
 
-### Trajectory Saving
+### Trajectory Saving & Plotting
 - Save damage trajectories for each simulated individual
 - Configurable number of time points or specific time points
 - Support for equally spaced points or custom time arrays
+- Built-in plotting functionality with customizable options:
+  - Choose number of trajectories to display
+  - Mark death times with markers
+  - Random or sequential trajectory selection
+  - Customizable colormaps and styling
+  - Clean plot appearance (removed top/right spines)
 
 ### Computational Methods
 - Euler method with standard integration
@@ -35,6 +41,7 @@ This repository contains tools for simulating and analyzing different types of i
 - `Life_long_interventions.ipynb`: Analysis of long-term interventions
 - `Transient_intervension.ipynb`: Analysis of transient interventions
 - `drosophila.ipynb`: Drosophila-specific analysis
+- `trajectory_plotting_example.py`: Example script demonstrating plotting functionality
 
 ## Usage
 
@@ -62,6 +69,9 @@ death_times, events = sim.calc_death_times()
 # Access trajectories
 trajectories = sim.trajectories  # Shape: (npeople, ntraj_points)
 time_points = sim.traj_time_points
+
+# Plot trajectories
+ax = sim.plot_trajectories(n_trajectories=10, mark_death=True, colormap='viridis')
 ```
 
 ### Saturating_eta with Time Units
@@ -88,11 +98,34 @@ sim = getInterventionSR(
 )
 ```
 
+### Plotting Options
+
+```python
+# Basic plotting
+ax = sim.plot_trajectories()
+
+# Customize plotting options
+ax = sim.plot_trajectories(
+    n_trajectories=15,           # Number of trajectories to plot
+    mark_death=True,             # Mark death times with 'x'
+    random_selection=False,      # Use first n trajectories instead of random
+    colormap='plasma',           # Matplotlib colormap
+    alpha=0.7,                   # Line transparency
+    linewidth=1.5                # Line width
+)
+
+# Use existing axes
+fig, ax = plt.subplots(figsize=(12, 8))
+sim.plot_trajectories(ax=ax, n_trajectories=20, colormap='tab20')
+ax.set_title('My Custom Title')
+```
+
 ## Requirements
 
 - NumPy
 - Numba
 - Joblib (for parallel processing)
+- Matplotlib (for plotting)
 - SRtools (custom module for SR models)
 
 ## Installation
@@ -105,7 +138,7 @@ cd Inervention_tests
 
 2. Install required dependencies:
 ```bash
-pip install numpy numba joblib
+pip install numpy numba joblib matplotlib
 ```
 
 3. Ensure SRtools is available in your Python path.
