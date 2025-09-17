@@ -167,7 +167,8 @@ class intervention_SR(srh.SR_Hetro):
         return self.death_times, self.events
     
     def plot_trajectories(self, n_trajectories=10, mark_death=True, random_selection=True, 
-                         colormap='viridis', ax=None, alpha=0.7, linewidth=1.0, show_death_level=True):
+                         colormap='viridis', ax=None, alpha=0.7, linewidth=1.0, show_death_level=True,
+                         title=None, xlabel='Time', ylabel='Damage'):
         """
         Plot damage trajectories from the simulation.
         
@@ -180,6 +181,9 @@ class intervention_SR(srh.SR_Hetro):
             alpha (float): Transparency of trajectory lines (default: 0.7)
             linewidth (float): Width of trajectory lines (default: 1.0)
             show_death_level (bool): Whether to show damage level at death as Xc (default: True)
+            title (str): Custom title for the plot. If None, uses default title (default: None)
+            xlabel (str): Label for x-axis (default: 'Time')
+            ylabel (str): Label for y-axis (default: 'Damage')
         
         Returns:
             matplotlib.axes.Axes: The axes object with the plot
@@ -253,9 +257,15 @@ class intervention_SR(srh.SR_Hetro):
         # Customize plot appearance
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Damage')
-        ax.set_title(f'Damage Trajectories (n={n_trajectories})')
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        
+        # Set title (use custom title if provided, otherwise default)
+        if title is None:
+            ax.set_title(f'Damage Trajectories (n={n_trajectories})')
+        else:
+            ax.set_title(title)
+            
         ax.grid(True, alpha=0.3)
         
         # Add legend if not too many trajectories

@@ -32,22 +32,21 @@ def example_basic_plotting():
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
     
     # Default plot (shows death level as Xc, stops at death)
-    sim.plot_trajectories(ax=axes[0,0])
-    axes[0,0].set_title('Default Settings (stops at death, shows Xc)')
+    sim.plot_trajectories(ax=axes[0,0], title='Default Settings')
     
-    # More trajectories, no death markers
-    sim.plot_trajectories(n_trajectories=20, mark_death=False, ax=axes[0,1])
-    axes[0,1].set_title('20 trajectories, no death markers')
+    # More trajectories, no death markers, custom labels
+    sim.plot_trajectories(n_trajectories=20, mark_death=False, ax=axes[0,1],
+                         title='No Death Markers', xlabel='Time (years)', ylabel='Damage Level')
     
     # First 5 trajectories, no death level shown
     sim.plot_trajectories(n_trajectories=5, random_selection=False, 
-                         colormap='plasma', show_death_level=False, ax=axes[1,0])
-    axes[1,0].set_title('First 5 trajectories, no Xc level')
+                         colormap='plasma', show_death_level=False, ax=axes[1,0],
+                         title='First 5 Trajectories (No Xc Level)')
     
-    # Custom styling with death level
+    # Custom styling with custom title and labels
     sim.plot_trajectories(n_trajectories=15, colormap='coolwarm', 
-                         alpha=0.5, linewidth=2.0, show_death_level=True, ax=axes[1,1])
-    axes[1,1].set_title('Custom styling (shows death at Xc level)')
+                         alpha=0.5, linewidth=2.0, show_death_level=True, ax=axes[1,1],
+                         title='Custom Styling Example', xlabel='Age (years)', ylabel='Accumulated Damage')
     
     plt.tight_layout()
     plt.savefig('trajectory_examples.png', dpi=150, bbox_inches='tight')
@@ -75,10 +74,11 @@ def example_specific_timepoints():
     # Run simulation
     death_times, events = sim.calc_death_times()
     
-    # Plot trajectories
+    # Plot trajectories with custom title and labels
     fig, ax = plt.subplots(figsize=(12, 6))
-    sim.plot_trajectories(n_trajectories=8, colormap='tab10', ax=ax)
-    ax.set_title('Trajectories at Specific Time Points')
+    sim.plot_trajectories(n_trajectories=8, colormap='tab10', ax=ax,
+                         title='Saturating Eta Intervention at Specific Time Points',
+                         xlabel='Time (years)', ylabel='Damage Accumulation')
     
     # Add vertical lines for intervention period
     ax.axvspan(5, 15, alpha=0.2, color='red', label='Intervention period')

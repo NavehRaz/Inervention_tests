@@ -114,13 +114,16 @@ ax = sim.plot_trajectories(
     colormap='plasma',           # Matplotlib colormap
     alpha=0.7,                   # Line transparency
     linewidth=1.5,               # Line width
-    show_death_level=True        # Show damage at death as Xc level (default: True)
+    show_death_level=True,       # Show damage at death as Xc level (default: True)
+    title='My Custom Title',     # Custom plot title
+    xlabel='Age (years)',        # Custom x-axis label
+    ylabel='Accumulated Damage'  # Custom y-axis label
 )
 
-# Use existing axes
+# Use existing axes with custom labels
 fig, ax = plt.subplots(figsize=(12, 8))
-sim.plot_trajectories(ax=ax, n_trajectories=20, colormap='tab20')
-ax.set_title('My Custom Title')
+sim.plot_trajectories(ax=ax, n_trajectories=20, colormap='tab20',
+                     title='Intervention Analysis', xlabel='Time (days)', ylabel='Damage')
 ```
 
 ## Requirements
