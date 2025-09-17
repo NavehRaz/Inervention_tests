@@ -167,7 +167,7 @@ class intervention_SR(srh.SR_Hetro):
         return self.death_times, self.events
     
     def plot_trajectories(self, n_trajectories=10, mark_death=True, random_selection=True, 
-                         colormap='viridis', ax=None, alpha=0.7, linewidth=1.0):
+                         colormap='viridis', ax=None, alpha=0.7, linewidth=1.0, show_death_level=True):
         """
         Plot damage trajectories from the simulation.
         
@@ -179,6 +179,7 @@ class intervention_SR(srh.SR_Hetro):
             ax (matplotlib.axes.Axes): Axes object to plot on. If None, creates new figure (default: None)
             alpha (float): Transparency of trajectory lines (default: 0.7)
             linewidth (float): Width of trajectory lines (default: 1.0)
+            show_death_level (bool): Whether to show damage level at death as Xc (default: True)
         
         Returns:
             matplotlib.axes.Axes: The axes object with the plot
@@ -216,18 +217,36 @@ class intervention_SR(srh.SR_Hetro):
         
         # Plot trajectories
         for i, idx in enumerate(selected_indices):
-            trajectory = self.trajectories[idx, :]
-            ax.plot(self.traj_time_points, trajectory, color=colors[i], 
+            trajectory = self.trajectories[idx, :].copy()
+            time_points = self.traj_time_points.copy()
+            
+            # Check if this individual died and truncate trajectory at death
+            if hasattr(self, 'death_times') and hasattr(self, 'events'):
+                if idx < len(self.events) and self.events[idx] == 1:  # Death event occurred
+                    death_time = self.death_times[idx]
+                    
+                    # Find trajectory points before or at death time
+                    valid_indices = time_points <= death_time
+                    
+                    if np.any(valid_indices):
+                        # Use only trajectory points up to death
+                        time_points = time_points[valid_indices]
+                        trajectory = trajectory[valid_indices]
+                        
+                        # Add death point at exact death time with Xc level if show_death_level is True
+                        if show_death_level:
+                            time_points = np.append(time_points, death_time)
+                            trajectory = np.append(trajectory, self.xc)
+            
+            # Plot the trajectory
+            ax.plot(time_points, trajectory, color=colors[i], 
                    alpha=alpha, linewidth=linewidth, label=f'Individual {idx}' if n_trajectories <= 10 else None)
             
             # Mark death time if requested
             if mark_death and hasattr(self, 'death_times') and hasattr(self, 'events'):
-                # Find the death time for this individual
                 if idx < len(self.events) and self.events[idx] == 1:  # Death event occurred
                     death_time = self.death_times[idx]
-                    # Find the closest trajectory point to death time
-                    closest_idx = np.argmin(np.abs(self.traj_time_points - death_time))
-                    death_damage = trajectory[closest_idx]
+                    death_damage = self.xc if show_death_level else trajectory[-1]
                     ax.scatter(death_time, death_damage, color=colors[i], s=50, 
                              marker='x', alpha=1.0, zorder=5)
         
@@ -245,7 +264,8 @@ class intervention_SR(srh.SR_Hetro):
         
         # Add death markers to legend if applicable
         if mark_death:
-            ax.scatter([], [], color='black', marker='x', s=50, alpha=1.0, label='Death time')
+            death_label = 'Death time (Xc level)' if show_death_level else 'Death time'
+            ax.scatter([], [], color='black', marker='x', s=50, alpha=1.0, label=death_label)
             if n_trajectories <= 10:
                 ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         

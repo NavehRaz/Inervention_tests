@@ -27,6 +27,8 @@ This repository contains tools for simulating and analyzing different types of i
   - Mark death times with markers
   - Random or sequential trajectory selection
   - Customizable colormaps and styling
+  - Trajectories stop at death time (no post-death plotting)
+  - Show damage level at death as Xc (default behavior)
   - Clean plot appearance (removed top/right spines)
 
 ### Computational Methods
@@ -111,7 +113,8 @@ ax = sim.plot_trajectories(
     random_selection=False,      # Use first n trajectories instead of random
     colormap='plasma',           # Matplotlib colormap
     alpha=0.7,                   # Line transparency
-    linewidth=1.5                # Line width
+    linewidth=1.5,               # Line width
+    show_death_level=True        # Show damage at death as Xc level (default: True)
 )
 
 # Use existing axes

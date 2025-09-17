@@ -31,23 +31,23 @@ def example_basic_plotting():
     # Plot trajectories with default settings
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
     
-    # Default plot
+    # Default plot (shows death level as Xc, stops at death)
     sim.plot_trajectories(ax=axes[0,0])
-    axes[0,0].set_title('Default Settings (10 random trajectories)')
+    axes[0,0].set_title('Default Settings (stops at death, shows Xc)')
     
     # More trajectories, no death markers
     sim.plot_trajectories(n_trajectories=20, mark_death=False, ax=axes[0,1])
     axes[0,1].set_title('20 trajectories, no death markers')
     
-    # First 5 trajectories (not random), different colormap
+    # First 5 trajectories, no death level shown
     sim.plot_trajectories(n_trajectories=5, random_selection=False, 
-                         colormap='plasma', ax=axes[1,0])
-    axes[1,0].set_title('First 5 trajectories, plasma colormap')
+                         colormap='plasma', show_death_level=False, ax=axes[1,0])
+    axes[1,0].set_title('First 5 trajectories, no Xc level')
     
-    # Custom styling
+    # Custom styling with death level
     sim.plot_trajectories(n_trajectories=15, colormap='coolwarm', 
-                         alpha=0.5, linewidth=2.0, ax=axes[1,1])
-    axes[1,1].set_title('Custom styling (alpha=0.5, linewidth=2.0)')
+                         alpha=0.5, linewidth=2.0, show_death_level=True, ax=axes[1,1])
+    axes[1,1].set_title('Custom styling (shows death at Xc level)')
     
     plt.tight_layout()
     plt.savefig('trajectory_examples.png', dpi=150, bbox_inches='tight')
