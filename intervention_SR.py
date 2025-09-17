@@ -141,33 +141,30 @@ class intervention_SR(srh.SR_Hetro):
         
         if self.method == 'brownian_bridge':
             if self.parallel:
-                result = death_times_euler_brownian_bridge_parallel(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_euler_brownian_bridge_parallel(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
             else:
-                result = death_times_euler_brownian_bridge(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_euler_brownian_bridge(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
         elif self.method == 'euler':
             if self.parallel:
-                result = death_times_accelerator2(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, self.intervention_duration, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_accelerator2(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, self.intervention_duration, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
             else:
-                result = death_times_accelerator(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_accelerator(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
         else:
             # Default to brownian bridge if method not recognized
             if self.parallel:
-                result = death_times_euler_brownian_bridge_parallel(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_euler_brownian_bridge_parallel(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
             else:
-                result = death_times_euler_brownian_bridge(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
+                death_times, events, trajectories = death_times_euler_brownian_bridge(s, dt, t, self.eta, self.eta_var, self.beta, self.beta_var, self.kappa, self.kappa_var, self.epsilon, self.epsilon_var, self.xc, self.xc_var, sdt, self.npeople, self.external_hazard, self.time_step_multiplier, self.intervention_time, intervention_type_flag, intervention_duration_starts, intervention_duration_stops, intervention_effect_value, intervention_effect_value, saturating_eta_min, self.save_trajectory, traj_time_points)
 
+        # Store results
+        self.death_times = np.array(death_times)
+        self.events = np.array(events)
+        
         if self.save_trajectory:
-            death_times, events, trajectories = result
             self.trajectories = trajectories
             self.traj_time_points = traj_time_points
-            self.death_times = np.array(death_times)
-            self.events = np.array(events)
-            return self.death_times, self.events
-        else:
-            death_times, events = result
-            self.death_times = np.array(death_times)
-            self.events = np.array(events)
-            return self.death_times, self.events
+        
+        return self.death_times, self.events
     
     def plot_trajectories(self, n_trajectories=10, mark_death=True, random_selection=True, 
                          colormap='viridis', ax=None, alpha=0.7, linewidth=1.0):
@@ -522,10 +519,7 @@ def death_times_accelerator(s,dt,t,eta0,eta_var,beta0,beta_var,kappa0,kappa_var,
             death_times.append(j*dt)
             events.append(0)
 
-    if save_trajectory:
-        return death_times, events, trajectories
-    else:
-        return death_times, events
+    return death_times, events, trajectories
 
 ##method with parallelization (run on your computer)
 def death_times_accelerator2(s,dt,t,eta,eta_var,beta,beta_var,kappa,kappa_var,epsilon,epsilon_var,xc,xc_var,sdt,npeople,external_hazard = np.inf,time_step_multiplier = 1, intervention_time=0, intervention_type_flag=0, intervention_duration=0, intervention_effect=0, saturating_eta_min=2e-5, save_trajectory=False, traj_time_points=np.array([0.0])):
@@ -629,10 +623,7 @@ def death_times_accelerator2(s,dt,t,eta,eta_var,beta,beta_var,kappa,kappa_var,ep
             else:
                 death_times.append(j * dt)
                 events.append(0)
-        if save_trajectory:
-            return death_times, events, trajectories
-        else:
-            return death_times, events
+        return death_times, events, trajectories
 
     n_jobs = os.cpu_count()
     npeople_per_job = npeople // n_jobs
@@ -642,11 +633,8 @@ def death_times_accelerator2(s,dt,t,eta,eta_var,beta,beta_var,kappa,kappa_var,ep
 
     death_times = [dt for sublist in results for dt in sublist[0]]
     events = [event for sublist in results for event in sublist[1]]
-    if save_trajectory:
-        trajectories = np.vstack([sublist[2] for sublist in results])
-        return death_times, events, trajectories
-    else:
-        return death_times, events
+    trajectories = np.vstack([sublist[2] for sublist in results])
+    return death_times, events, trajectories
 
 
 
@@ -772,10 +760,7 @@ def death_times_euler_brownian_bridge(s, dt, t, eta0, eta_var, beta0, beta_var, 
         else:
             events.append(0)
     
-    if save_trajectory:
-        return np.array(death_times), np.array(events), trajectories
-    else:
-        return np.array(death_times), np.array(events)
+    return np.array(death_times), np.array(events), trajectories
 
 # Parallel version of Euler with Brownian Bridge method
 def death_times_euler_brownian_bridge_parallel(s, dt, t, eta0, eta_var, beta0, beta_var, kappa0, kappa_var,
@@ -814,11 +799,8 @@ def death_times_euler_brownian_bridge_parallel(s, dt, t, eta0, eta_var, beta0, b
     # Concatenate results
     death_times = np.concatenate([res[0] for res in results])
     events = np.concatenate([res[1] for res in results])
-    if save_trajectory:
-        trajectories = np.vstack([res[2] for res in results])
-        return death_times, events, trajectories
-    else:
-        return death_times, events
+    trajectories = np.vstack([res[2] for res in results])
+    return death_times, events, trajectories
 
 
 
